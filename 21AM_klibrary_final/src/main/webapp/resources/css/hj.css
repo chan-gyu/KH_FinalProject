@@ -1,0 +1,213 @@
+@charset "UTF-8";
+#he_right{
+	width: 1200px;
+	float: right;
+}
+#titleheadnamed{
+  width : 1150px;
+  /* margin : auto; */
+  margin-top : 40px;
+  margin-left:4%;
+  border-bottom : 2px gray solid;
+  /* padding-left : 10px; */
+  font-size : 30px;
+}
+.leftmenu {
+    margin-top: 50px;
+    margin-left: 20px;
+    width: 250px;
+    float: left;
+    text-align: center;
+}
+
+#ad_right_qae{
+    float:right;
+}
+
+.nameq{
+    border-bottom: gray 1px solid;
+}
+#ad_right_qf{
+    width:1200px;
+    float:right;
+}
+#ad_right_fq {
+    width : 1200px;
+    float : right;
+  }
+
+
+
+.nameq{
+    border-bottom: gray 1px solid;
+}
+#ad_right_qf{
+    width:1200px;
+    float:right;
+}
+.tableMapqa{
+    margin-left: 4%;
+}
+#ad_right_fq {
+    width : 1200px;
+    float : right;
+  }
+.qabody {
+    margin-top:1%;
+    /* background-color: gray; */
+    height: 703px;
+    width: 1150px;
+}
+
+#contHeaderd {
+width: 1150px;
+		/* margin: auto; */
+		margin-top: 40px;
+		border-bottom: 2px gray solid;
+		/* padding-left: 10px; */
+		font-size: 30px;
+}
+/* 설영누나 메뉴 css */
+#menutitle{
+height:50px;
+text-align:center;
+color:white;
+background-color:blue;
+}
+
+.list-group-container{
+  margin-top: 5%;
+  margin-left: 1%;
+  width:250px;
+  float:left;
+  
+  
+  }
+  .list-group-item:not(#menutitle,#menutitle1):hover {
+    background-color: lightgrey;
+    cursor:pointer;
+  }
+/* Q&A묻고답하기 */
+.writing{
+    margin-left: 85%;
+    font-size: 1rem;
+}
+
+
+/* 묻고답하기확인 */
+.titlebody{
+    /* margin-left: 6%; */
+    /* margin-top: 1%; */
+    height: 690px;
+    width:1150px;
+    /* background-color: gray; */
+}
+.titlename{
+    height:80px;
+    width:1150px;
+    /* background-color: gray; */
+    font-size: 1rem;
+    border-bottom: 1px solid gray;
+}
+.border{
+    margin-top:1%;
+    height:150px;
+    width:1150px;
+    background-color:#e6f2fb;
+}
+.coment{
+    margin-top: 1%;
+    border-top: gray 1px solid;
+    border-bottom: gray 1px solid;
+    width:1150px;
+    height:150px;
+    /* background-color: red; */
+}
+.newcoment{
+    margin-top: 1%;
+    height:60px;
+    width: 1150px;
+    /* background-color: gray; */
+    font-size: 20px;
+    border-bottom: gray 1px solid;
+}
+.comenttext{
+    height:40px;
+    width:1000px;
+}
+
+/* 묻고답하기확인 */
+.tabletitle{
+    width: 600px;
+    height:35px;
+}
+.submitbutton{
+    height:47px;
+}
+
+/* Q&A묻고답하기 등록 */
+.borderbody{
+    margin-top: 1%;
+    margin-left: 6%;
+    height:704px;
+    width:1150px;
+    /* background-color: gray; */
+}
+
+.title{
+    height:40px;
+    width:100px;
+    border-bottom: gray 1px solid;
+}
+
+.name{
+    text-align: center;
+    width:1100px;
+    border-bottom: gray 1px solid;
+}
+
+.titlename2{
+    width:800px;
+}
+
+.textarea{
+    margin-top: 1%;
+}
+
+.newtext{
+    margin-left: 45%;
+    font-size: 1rem;
+}
+
+#backtext{
+    margin-left: 2%;
+    font-size: 1rem;
+}
+
+/* FAQ자주하는질문 */
+.contents{
+    width:1150px;
+    height:80px;
+    border: 1px solid gray;
+    background-color:white;
+    display: none;
+    margin:0;
+    padding:0;
+}
+
+.qmenu{
+    border-bottom: gray 1px solid;
+    font-size: 2rem;
+}
+.qsech{
+    text-align: center;
+    margin-bottom: 5%;
+}
+#katagori{
+    font-size: 1rem;
+}
+.sechtext{
+    width:500px;
+    height:25px;
+    font-size: 1rem;
+}

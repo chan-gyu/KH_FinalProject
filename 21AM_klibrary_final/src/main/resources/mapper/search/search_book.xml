@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="search">
+   	<resultMap type="bookInfo" id="bookInfoMap">			
+				<id column="ISBN_NO" property="isbnNo"/>
+				<result column="BOOK_NAME" property="bookName"/>
+				<result column="BOOK_WRITER" property="bookWriter"/>
+				<result column="BOOK_COMPANY" property="bookCompany"/>
+				<result column="BOOK_DATE" property="bookDate"/>
+				<result column="BOOK_PRICE" property="bookPrice"/>
+				<result column="BOOK_LOCATION" property="bookLocation"/>
+				<result column="BOOK_CONTENT" property="bookContent"/>
+				<result column="BOOK_IMG" property="bookImg"/>
+				<result column="BOOK_KDC" property="bookKdc"/>
+			
+		</resultMap>
+		
+		<select id="selectBookList" resultMap="bookInfoMap">
+		
+		SELECT * FROM BOOK_INFO
+		
+	       <trim prefix="WHERE" prefixOverrides="AND|OR">
+		 <if test= 'category == "all" and keyword != ""' >
+		   OR BOOK_NAME like '%'||#{keyword}||'%' OR
+		      BOOK_NAME LIKE '%'||REPLACE(#{keyword},' ','')||'%' OR
+		    BOOK_WRITER like '%'||#{keyword}||'%' OR
+		    BOOK_COMPANY like '%'||#{keyword}||'%' OR
+		    ISBN_NO like '%'||#{keyword}||'%'
+		  </if>
+		  <if test= 'category =="book_name" and keyword != ""'>
+		   OR BOOK_NAME like '%'|| #{keyword}|| '%'
+		  </if>
+		  <if test= 'category =="book_writer" and keyword != ""'>
+		  OR BOOK_WRITER like '%'|| #{keyword}||'%'
+		  </if>
+		  <if test= 'category =="book_company" and keyword !=""'>
+		  OR BOOK_COMPANY like '%'|| #{keyword}||'%'
+		  </if>
+		   <if test= 'category =="isbnNo" and keyword !=""'>
+		  OR ISBN_NO like '%'|| #{keyword}||'%'
+		  </if>
+		  </trim>
+		</select>
+		
+			<select id="selectBookCount" resultType="_int">
+		
+		SELECT COUNT(*) FROM BOOK_INFO
+		
+	       <trim prefix="WHERE" prefixOverrides="AND|OR">
+		 <if test= 'category == "all" and keyword != ""' >
+		   OR BOOK_NAME like '%'||#{keyword}||'%' OR
+		   BOOK_NAME LIKE '%'||REPLACE(#{keyword},' ','')||'%' OR
+		    BOOK_WRITER like '%'||#{keyword}||'%' OR
+		    BOOK_COMPANY like '%'||#{keyword}||'%' OR
+		    ISBN_NO like '%'||#{keyword}||'%'
+		  </if>
+		  <if test= 'category =="book_name" and keyword != ""'>
+		   OR BOOK_NAME like '%'|| #{keyword}|| '%'
+		  </if>
+		  <if test= 'category =="book_writer" and keyword != ""'>
+		  OR BOOK_WRITER like '%'|| #{keyword}||'%'
+		  </if>
+		  <if test= 'category =="book_company" and keyword !=""'>
+		  OR BOOK_COMPANY like '%'|| #{keyword}||'%'
+		  </if>
+		   <if test= 'category =="isbnNo" and keyword !=""'>
+		  OR ISBN_NO like '%'|| #{keyword}||'%'
+		  </if>
+		  </trim>
+		</select>
+		
+<select id="selectDetail" resultMap="bookInfoMap">
+		  SELECT * FROM BOOK_INFO 
+		<trim prefix="WHERE" prefixOverrides="AND|OR">
+		    <if test="book_Category != null and book_Category != '' and book_Category !='도서 대분류'">
+				AND BOOK_KDC LIKE '%'||#{book_Category}||'%' 
+			</if>	
+									
+				<if test="init != null and init != '' and init !='선택안함'">
+				   AND  BOOK_NAME 
+					<foreach collection="init" item="i" open="BETWEEN" close="" separator="AND" >
+							NCHR(#{i}) 
+					</foreach> 				      
+				</if>
+					
+			<if test="bookName != null and bookName != ''">
+				AND BOOK_NAME LIKE '%'||#{bookName}||'%' OR
+				BOOK_NAME LIKE '%'||REPLACE(#{bookName},' ','')||'%' 
+			</if>
+	
+			<if test="author != null and author != ''">
+				AND BOOK_WRITER LIKE '%'||#{author}||'%' 
+			</if>
+		
+			<if test="publisher != null and publisher != ''">
+				AND BOOK_COMPANY LIKE '%'||#{publisher}||'%' 
+			</if>	
+			<if test="isbnNo != null and isbnNo != '' ">
+				AND ISBN_NO LIKE '%'||#{isbnNo}||'%'
+			</if>
+
+			<if test="price != null and price != '' ">
+				AND BOOK_PRICE LIKE '%'||#{price}||'%' 
+			</if>
+
+			<if test="publishYear != null and publishYear != '' and publishYear2 != null and publishYear2 != ''">
+				AND BOOK_DATE BETWEEN #{publishYear} AND #{publishYear2}
+			</if>
+			<if test="publishYear != null and publishYear != '' and (publishYear2 == null or publishYear2 == '')">
+				AND BOOK_DATE BETWEEN #{publishYear} AND SYSDATE
+			</if>		
+		</trim>
+		</select>
+		
+		<select id="selectDetailCount" resultType="_int">
+		  SELECT COUNT(*) FROM BOOK_INFO 
+		<trim prefix="WHERE" prefixOverrides="AND|OR">
+		    <if test="book_Category != null and book_Category != '' and book_Category !='도서 대분류'">
+				AND BOOK_KDC LIKE '%'||#{book_Category}||'%' 
+			</if>	
+									
+				<if test="init != null and init != ''">
+				   AND  BOOK_NAME 
+					<foreach collection="init" item="i" open="BETWEEN" close="" separator="AND" >
+							NCHR(#{i}) 
+					</foreach> 				      
+				</if>
+					
+			<if test="bookName != null and bookName != ''">
+				AND BOOK_NAME LIKE '%'||#{bookName}||'%' OR
+				BOOK_NAME LIKE '%'||REPLACE(#{bookName},' ','')||'%'
+			</if>
+	
+			<if test="author != null and author != ''">
+				AND BOOK_WRITER LIKE '%'||#{author}||'%' 
+			</if>
+		
+			<if test="publisher != null and publisher != ''">
+				AND BOOK_COMPANY LIKE '%'||#{publisher}||'%' 
+			</if>	
+			
+			<if test="isbnNo != null and isbnNo != '' ">
+				AND ISBN_NO LIKE '%'||#{isbnNo}||'%'
+			</if>
+
+			<if test="price != null and price != '' ">
+				AND BOOK_PRICE LIKE '%'||#{price}||'%' 
+			</if>
+
+			<if test="publishYear != null and publishYear != '' and publishYear2 != null and publishYear2 != ''">
+				AND BOOK_DATE BETWEEN #{publishYear} AND #{publishYear2}
+			</if>
+			<if test="publishYear != null and publishYear != '' and (publishYear2 == null or publishYear2 == '')">
+				AND BOOK_DATE BETWEEN #{publishYear} AND SYSDATE
+			</if>		
+		</trim>
+		</select>
+		
+		<select id="kdcNoSearch" resultMap="bookInfoMap">		
+		SELECT * FROM BOOK_INFO		
+	       <trim prefix="WHERE" prefixOverrides="AND|OR">		 
+			  <if test= 'kdcNo !=null and kdcNo != ""'>
+			   AND BOOK_KDC = #{kdcNo}
+			  </if>		 
+		  </trim>
+		</select>
+		
+		<select id="kdcNoSearchCount" resultType="_int">		
+		SELECT COUNT(*) FROM BOOK_INFO		
+	       <trim prefix="WHERE" prefixOverrides="AND|OR">		 
+			  <if test= 'kdcNo !=null and kdcNo != ""'>
+			   AND BOOK_KDC = #{kdcNo}
+			  </if>		 
+		  </trim>
+		</select>
+		
+		
+		
+		
+		<resultMap type="com.kh.klibrary.book.model.vo.Book" id="book">		
+			<id column="BOOK_NO" property="bookNo"/>
+			<result column="ISBN_NO" property="bookingState"/>
+			<result column="BOOKING_STATE" property="bookingState"/>
+			<result column="LENDING_STATE" property="lendingState"/>
+			<collection property="bookInfo" ofType="bookInfo">
+				<id column="ISBN_NO" property="isbnNo"/>
+				<result column="BOOK_NAME" property="bookName"/>
+				<result column="BOOK_WRITER" property="bookWriter"/>
+				<result column="BOOK_COMPANY" property="bookCompany"/>
+				<result column="BOOK_DATE" property="bookDate"/>
+				<result column="BOOK_PRICE" property="bookPrice"/>
+				<result column="BOOK_LOCATION" property="bookLocation"/>
+				<result column="BOOK_CONTENT" property="bookContent"/>
+				<result column="BOOK_IMG" property="bookImg"/>
+				<result column="BOOK_KDC" property="bookKdc"/>
+			</collection>		
+	</resultMap>
+  
+  <select id="selectBookInfo" resultMap="book">
+		SELECT * FROM BOOK LEFT JOIN BOOK_INFO USING(ISBN_NO) WHERE ISBN_NO=#{isbnNo}
+	</select>
+	
+	 <resultMap type="com.kh.klibrary.member.model.vo.Lending" id="lending">
+		<id column="LENDING_NO" property="lendingNo"/>
+		<result column="USER_ID" property="userId"/>
+		<result column="BOOK_NO" property="bookNo"/>
+		<result column="LENDING_DATE" property="lendingDate"/>
+		<result column="RETURN_DATE" property="returnDate"/>
+		<result column="BOOK_EXTEND" property="bookExtend"/>		
+		<result column="USER_ID" property="userId"/>			
+		<collection property="book" ofType="book">
+			<id column="BOOK_NO" property="bookNo"/>
+			<result column="ISBN_NO" property="bookingState"/>
+			<result column="BOOKING_STATE" property="bookingState"/>
+			<result column="LENDING_STATE" property="lendingState"/>			
+			<result column="ISBN_NO" property="isbnNo"/>				
+		</collection>
+	</resultMap>
+	
+	 <select id="selectLending" resultMap="lending">
+	SELECT * FROM LENDING JOIN BOOK USING(BOOK_NO) WHERE BOOK_NO=#{isbnNo}
+	</select> 
+	
+	<insert id="insertInterestingBook">
+	 INSERT INTO LIKES VALUES (#{userId},#{isbnNo})
+	</insert>
+	
+	<resultMap type="com.kh.klibrary.member.model.vo.Likes" id="likes">
+		<result column="USER_ID" property="userId"/>
+		<result column="ISBN_NO" property="isbnNo"/>
+		<collection property="member" ofType="member">
+			<id column="USER_ID" property="userId"/>
+			<result column="USER_PASSWORD" property="userPassword"/>
+			<result column="USER_NAME" property="userName"/>
+			<result column="EMAIL" property="email"/>
+			<result column="BIRTH_DATE" property="birthDate"/>
+			<result column="ADDRESS" property="address"/>
+			<result column="PHONE" property="phone"/>
+			<result column="SIGNUP_DATE" property="signupDate"/>
+		</collection>
+		<collection property="bookInfo" ofType="bookInfo">
+			<id column="ISBN_NO" property="isbnNo"/>
+			<result column="BOOK_NAME" property="bookName"/>
+			<result column="BOOK_WRITER" property="bookWriter"/>
+			<result column="BOOK_COMPANY" property="bookCompany"/>
+			<result column="BOOK_DATE" property="bookDate"/>
+			<result column="BOOK_PRICE" property="bookPrice"/>
+			<result column="BOOK_LOCATION" property="bookLocation"/>
+			<result column="BOOK_CONTENT" property="bookContent"/>
+			<result column="BOOK_IMG" property="bookImg"/>
+			<result column="BOOK_KDC" property="bookKdc"/>
+		</collection>
+	</resultMap>
+	
+	<select id="selectInterestingBook" resultMap="likes">
+	 SELECT * FROM LIKES WHERE USER_ID=#{userId} AND ISBN_NO=#{isbnNo}
+	</select>
+	
+	<update id="bookingBook" >
+	 UPDATE BOOK SET BOOKING_STATE=#{bookingState}, LENDING_STATE=#{bookingState} WHERE BOOK_NO=#{bookNo}
+	</update>
+	<insert id="booking">
+	INSERT 
+    INTO BOOKING (BOOKING_NO, USER_ID, BOOK_NO, BOOKING_DATE, BOOKING_PICKUP_DATE)
+    VALUES (SEQ_BOOKING_NO.NEXTVAL, #{userId}, #{bookNo}, SYSDATE, SYSDATE+3)        
+	</insert>
+	
+	<resultMap type="com.kh.klibrary.member.model.vo.Booking" id="booking">
+		<id column="BOOKING_NO" property="bookingNo"/>
+		<result column="USER_ID" property="userId"/>
+		<result column="BOOK_NO" property="bookNo"/>
+		<result column="BOOKING_DATE" property="bookingDate"/>
+		<result column="BOOKING_PICKUP_DATE" property="bookingPickUpDate"/>
+		<collection property="member" ofType="member">
+			<id column="USER_ID" property="userId"/>
+			<result column="USER_PASSWORD" property="userPassword"/>
+			<result column="USER_NAME" property="userName"/>
+			<result column="EMAIL" property="email"/>
+			<result column="BIRTH_DATE" property="birthDate"/>
+			<result column="ADDRESS" property="address"/>
+			<result column="PHONE" property="phone"/>
+			<result column="SIGNUP_DATE" property="signupDate"/>
+		</collection>
+		<collection property="book" ofType="book">
+			<id column="BOOK_NO" property="bookNo"/>
+			<result column="ISBN_NO" property="bookingState"/>
+			<result column="BOOKING_STATE" property="bookingState"/>
+			<result column="LENDING_STATE" property="lendingState"/>
+			<collection property="bookInfo" ofType="bookInfo">
+				<id column="ISBN_NO" property="isbnNo"/>
+				<result column="BOOK_NAME" property="bookName"/>
+				<result column="BOOK_WRITER" property="bookWriter"/>
+				<result column="BOOK_COMPANY" property="bookCompany"/>
+				<result column="BOOK_DATE" property="bookDate"/>
+				<result column="BOOK_PRICE" property="bookPrice"/>
+				<result column="BOOK_LOCATION" property="bookLocation"/>
+				<result column="BOOK_CONTENT" property="bookContent"/>
+				<result column="BOOK_IMG" property="bookImg"/>
+				<result column="BOOK_KDC" property="bookKdc"/>
+			</collection>
+		</collection>
+	</resultMap>
+	
+	<select id="selectPassedDate" resultMap="booking">
+	 SELECT * FROM BOOKING  
+	 WHERE TO_CHAR(BOOKING_PICKUP_DATE,'YYYY/MM/DD') <![CDATA[ < ]]> TO_CHAR(SYSDATE,'YYYY/MM/DD')
+	 
+	</select>
+	
+	<insert id="insertBookingHistory">
+	INSERT
+	INTO BOOKING_HISTORY(BOOKING_HISTORY_NO, BOOKING_NO, USER_ID, BOOK_NO, BOOKING_DATE, BOOKING_PICKUP_DATE)
+	VALUES (SEQ_BOOKING_HISTORY_NO.NEXTVAL,#{bookingNo}, #{userId}, #{bookNo}, #{bookingDate}, #{bookingPickUpDate})
+	</insert>
+	
+	<delete id="deleteBookNo">
+	 DELETE FROM BOOKING WHERE BOOK_NO=#{bookNo}
+	</delete>
+	
+     <update id="updateBookNo" >
+	 UPDATE BOOK SET BOOKING_STATE='가능', LENDING_STATE='가능' WHERE BOOK_NO=#{bookNo}
+	</update>   
+	
+	<select id="selectAge" resultType="_int">
+	SELECT EXTRACT(YEAR FROM SYSDATE)- EXTRACT(YEAR FROM BIRTH_DATE)+1 FROM LIKES JOIN MEMBER USING(USER_ID) WHERE ISBN_NO=#{isbnNo}
+	</select>
+	
+	<!-- 관심도서 랭킹 -->
+	<select id="likeBest" resultType="Map">
+		SELECT LIKE_COUNT,BOOK_NAME
+		FROM 
+			(SELECT COUNT(*) AS LIKE_COUNT,BOOK_INFO.BOOK_NAME
+			FROM LIKES JOIN BOOK_INFO USING(ISBN_NO)
+			GROUP BY BOOK_INFO.BOOK_NAME
+			ORDER BY LIKE_COUNT DESC) 
+		WHERE ROWNUM BETWEEN 1 AND 5
+	</select>
+	
+	<select id="lendingBest" resultType="Map">
+	   SELECT * FROM
+         (SELECT COUNT(*) AS LENDING_COUNT, BOOK.ISBN_NO
+			FROM LENDING JOIN BOOK USING(BOOK_NO)
+			GROUP BY BOOK.ISBN_NO
+			ORDER BY LENDING_COUNT DESC)
+            WHERE ROWNUM BETWEEN 1 AND 5
+	</select>
+	
+</mapper>

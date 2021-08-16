@@ -1,0 +1,183 @@
+@charset "UTF-8";
+/* commmon */
+ @font-face { 
+    font-family: 'S-Core'; 
+    src: url("./S-CoreDream-4Regular.woff") format("woff"); 
+  }
+
+*{
+    font-family : 'S-Core';
+}
+
+
+        a { text-decoration: none; color: black; }
+        a:visited { text-decoration: none; }
+        a:hover { text-decoration: none; }
+        a:focus { text-decoration: none; }
+        a:hover, a:active { text-decoration: none; }
+        
+         #QnA_box{
+            width:1000px;
+            height:600px;
+            margin:50px auto;
+            
+        }
+        #QnA_table_box{
+            min-height: 270px;
+        }
+        #total_QnA{
+            margin-top: 30px;
+            width:1000px;
+            height:70px;
+            border:rgb(36, 36, 36) solid 1px;
+        }
+        #total_QnA>div{
+            display:flex;
+            justify-content: center;
+            margin: 23.4px 0 23.4px 0;
+        }
+        #total_QnA>div>span{
+            margin:0 15px 0	 15px;
+            font-size: 18px;
+        }
+        #QnA_table{
+            margin-top: 10px;
+            width:1000px;
+            text-align: center;
+            border-collapse: collapse;
+            border-left: none;
+            border-right: none;
+        }
+        #QnA_table tr{
+            height:40px;
+        }
+        #QnA_box>p+h2{
+            font-size: 30px;
+        }
+
+        #notice_box{
+            width:1000px;
+            height:600px;
+            margin:50px auto;
+        }
+        #notice_table_box{
+            min-height: 270px;
+        }
+        #total_notice{
+            margin-top: 10px;
+            width:1000px;
+            height:70px;
+            border:rgb(36, 36, 36) solid 1px;
+        }
+        #total_notice>div{
+            display:flex;
+            justify-content: center;
+            margin: 23.4px 0 23.4px 0;
+        }
+        #total_notice>div>span{
+            margin:0 15px 0 15px;
+            font-size: 18px;
+        }
+        #notice_table{
+            margin-top: 10px;
+            width:1000px;
+            text-align: center;
+            border-collapse: collapse;
+            border-left: none;
+            border-right: none;
+        }
+        #notice_table tr{
+            height:40px;
+        }
+        #notice_box>p+h2{
+            font-size: 30px;
+        }
+        .pagebar{
+            width: 100px;
+            margin: 50px auto;
+        }
+        .pagebar>span{
+            margin:0 6px 0 6px;
+        }
+        .pagebar>span a{
+            text-decoration: none;
+        }
+        .pagebar span>a:hover{
+            color:rgba(123, 209, 159, 0.856);
+            
+        }
+
+
+
+
+/* 관리자 - content - bookRegister 테이블 */
+
+ 
+ #reg_book_table {
+ 	margin:auto;
+ 	margin-top : 150px;
+ 	height : 600px;
+ }
+ 
+ #reg_book_table tr td:first-child {
+ 	background-color : #DADADA;
+ 	width : 150px;
+ }
+ 
+ #reg_book_table tr td {
+ 	border: 1px solid gray;
+ }
+ 
+ #reg_book_table tr .reg_book_cate {
+ 	text-align : left;
+ 	padding-left : 22px;
+ }
+ 
+ #reg_book_table tr .reg_book_cate input {
+ 	height : 30px;
+ }
+ 
+ #regBookBtn {
+ 	margin-top : 10px;
+ 	text-align : center;
+ }
+ 
+ #total_reg_book{
+     margin-top: 30px;
+     width:1000px;
+     height:70px;
+     border:rgb(36, 36, 36) solid 1px;
+ }
+ #total_reg_book>div{
+     display:flex;
+     justify-content: center;
+     margin: 23.4px 0 23.4px 0;
+ }
+ #total_reg_book>div>span{
+     margin:0 15px 0 15px;
+     font-size: 18px;
+ }
+ #reg_book_table{
+     margin-top: 10px;
+     width:1000px;
+     text-align: center;
+     border-collapse: collapse;
+     border-left: none;
+     border-right: none;
+ }
+
+ .book_image{
+   border-radius: 4px;
+   width: 80px;
+   height: 80px;
+   margin-right: 12px;
+ }
+
+ #reg_book_table tr{
+     height:40px;
+ }
+ #reg_book_box>p+h2{
+     font-size: 30px;
+ }
+
+   

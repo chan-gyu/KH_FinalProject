@@ -1,0 +1,557 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="adminBook">
+	
+	<!-- isbn 중복검사 -->
+	<select id="checkIsbn" parameterType="String" resultType="_int">
+		SELECT COUNT(*) FROM BOOK_INFO WHERE ISBN_NO = #{isbnNo}
+	</select>
+	
+	<!-- isbn 등록 -->
+	<insert id="insertBookInfo" parameterType="bookInfo">
+		INSERT INTO BOOK_INFO VALUES(#{isbnNo},#{bookName},#{bookWriter},#{bookCompany},#{bookDate},#{bookPrice},#{bookLocation},#{bookContent},#{bookImg},#{bookKdc})
+	</insert>
+	
+	<!-- 도서 parsing -->
+	<!-- <insert id="insertBookParsing" parameterType="Map">
+		INSERT INTO BOOK_INFO_PARSING VALUES(SEQ_BOOK_PARSING_NO.NEXTVAL,#{isbnNo},#{bookParName},#{bookParWriter},#{bookParCompany})
+	</insert> -->
+	
+	<!-- 도서등록 -->
+	<insert id="insertBook" parameterType="bookInfo">
+		INSERT INTO BOOK VALUES(SEQ_BOOK_NO.NEXTVAL,#{isbnNo},default,default)
+	</insert>
+	
+	<!-- 도서목록 -->
+	<select id="selectBookList" resultMap="bookMap">
+		select * from BOOK JOIN BOOK_INFO USING(ISBN_NO) JOIN KDC_DETAIL ON(BOOK_KDC=KDC_DETAIL_NO) JOIN KDC_NO USING(KDC_NO)
+	</select>
+	
+	<!-- 도서 상세 -->
+	<select id="selectBook" parameterType="String" resultMap="bookMap">
+		select * from BOOK JOIN BOOK_INFO USING(ISBN_NO) JOIN KDC_DETAIL ON(BOOK_KDC=KDC_DETAIL_NO) JOIN KDC_NO USING(KDC_NO) 
+		WHERE BOOK_NO = #{bookNo}
+	</select>
+	
+	<!-- 도서대출내역 -->
+	<select id="selectLenHis" parameterType="String" resultMap="lenHisMap">
+		SELECT * FROM LENDING_HISTORY
+		WHERE BOOK_NO = #{bookNo}
+	</select>
+	
+	<!-- 총도서 -->
+	<select id="totalBook" resultType="_int">
+		SELECT COUNT(*) FROM BOOK
+	</select>
+	
+	<!-- 도서 Key 목록 -->
+	<select id="searchKeyBook" parameterType="Map" resultMap="bookMap">
+		SELECT * FROM BOOK JOIN BOOK_INFO USING(ISBN_NO) JOIN KDC_DETAIL ON(BOOK_KDC=KDC_DETAIL_NO) JOIN KDC_NO USING(KDC_NO) 
+		WHERE ${searchOption} LIKE '%'||#{searchWord}||'%'
+	</select>
+	
+	<!-- 도서 key 총 도서 -->
+	<select id="totalKeyBook" parameterType="Map" resultType="_int">
+		SELECT COUNT(*) FROM BOOK JOIN BOOK_INFO USING(ISBN_NO) JOIN KDC_DETAIL ON(BOOK_KDC=KDC_DETAIL_NO) JOIN KDC_NO USING(KDC_NO) 
+		WHERE ${searchOption} LIKE '%'||#{searchWord}||'%'
+	</select>
+	
+	<!-- 도서 Detail 목록 -->
+	<select id="searchDetBook" parameterType="Map" resultMap="bookMap">
+		SELECT * FROM BOOK JOIN BOOK_INFO USING(ISBN_NO) JOIN KDC_DETAIL ON(BOOK_KDC=KDC_DETAIL_NO) JOIN KDC_NO USING(KDC_NO) 
+		WHERE 1=1
+		
+		<if test="iniArr != null and iniArr != ''">
+		AND BOOK_NAME 
+		<foreach collection="iniArr" item="i" open="BETWEEN" close="" separator="AND" >
+				NCHR(#{i})
+		</foreach> 
+		</if>
+		
+		<if test="detBookName != null and detBookName != ''">
+			AND BOOK_NAME LIKE '%'||#{detBookName}||'%'
+		</if>
+		<if test="detIsbn != null and detIsbn!= ''">
+			AND ISBN_NO LIKE '%'||#{detIsbn}||'%'
+		</if>
+		<if test="detWriter != null and detWriter != ''">
+			AND BOOK_WRITER LIKE '%'||#{detWriter}||'%'
+		</if>
+		<if test="detPublisher != null and detPublisher != ''">
+			AND BOOK_COMPANY LIKE '%'||#{detPublisher}||'%'
+		</if>
+		<if test="detLow != null and detLow != '' and detHigh != null and detHigh!= '' ">
+			AND BOOK_DATE BETWEEN #{detLow} AND #{detHigh}
+		</if>
+		<if test="detLow != null and detLow != '' and (detHigh == null or detHigh == '') ">
+			AND BOOK_DATE BETWEEN #{detLow} AND SYSDATE
+		</if>
+		
+	</select>
+	
+	<select id="totalDetBook" parameterType="Map" resultType="_int">
+		SELECT COUNT(*) FROM BOOK JOIN BOOK_INFO USING(ISBN_NO) JOIN KDC_DETAIL ON(BOOK_KDC=KDC_DETAIL_NO) JOIN KDC_NO USING(KDC_NO) 
+		WHERE 1=1
+		
+		<if test="iniArr != null and iniArr != ''">
+		AND BOOK_NAME 
+		<foreach collection="iniArr" item="i" open="BETWEEN" close="" separator="AND" >
+				NCHR(#{i})
+		</foreach> 
+		</if>
+		
+		<if test="detBookName != null and detBookName != ''">
+			AND BOOK_NAME LIKE '%'||#{detBookName}||'%'
+		</if>
+		<if test="detIsbn != null and detIsbn!= ''">
+			AND ISBN_NO LIKE '%'||#{detIsbn}||'%'
+		</if>
+		<if test="detWriter != null and detWriter != ''">
+			AND BOOK_WRITER LIKE '%'||#{detWriter}||'%'
+		</if>
+		<if test="detPublisher != null and detPublisher != ''">
+			AND BOOK_COMPANY LIKE '%'||#{detPublisher}||'%'
+		</if>
+		<if test="detLow != null and detLow != '' and detHigh != null and detHigh!= '' ">
+			AND BOOK_DATE BETWEEN #{detLow} AND #{detHigh}
+		</if>
+		<if test="detLow != null and detLow != '' and (detHigh == null or detHigh == '') ">
+			AND BOOK_DATE BETWEEN #{detLow} AND SYSDATE
+		</if>
+		
+	</select>
+	
+	<!-- 도서삭제 -->
+	<delete id="deleteBook" parameterType="Map">
+		DELETE FROM BOOK WHERE BOOK_NO IN 
+		<foreach collection="bookNo" item="b" open="(" separator="," close=")">
+			#{b}
+		</foreach>
+		   
+	</delete>
+	
+	<!-- 대출도서 내역리스트 -->
+	<select id="selectRentalHList" resultMap="lenHisMap">
+		SELECT * FROM LENDING_HISTORY LEFT JOIN MEMBER USING(USER_ID)
+	</select>
+	
+	<!-- 대출도서 내역카운트 -->	
+	<select id="selectRentalHCount" resultType="_int">
+		SELECT COUNT(*) FROM LENDING_HISTORY LEFT JOIN MEMBER USING(USER_ID)
+	</select>
+	
+	<!-- 대출도서 리스트 -->
+	<select id="selectRentalList" resultMap="lending">
+		SELECT * FROM
+		LENDING LEFT JOIN (SELECT * FROM BOOK LEFT JOIN BOOK_INFO USING(ISBN_NO)) USING(BOOK_NO) LEFT JOIN MEMBER USING(USER_ID)
+	</select>
+	
+	<!-- 대출도서 카운트 -->	
+	<select id="selectRentalCount" resultType="_int">
+		SELECT COUNT(*) FROM LENDING
+	</select>
+	
+	<!-- 대출도서 검색 리스트 -->
+	<select id="searchRentalList" parameterType="Map" resultMap="lending">
+		SELECT * FROM
+		LENDING LEFT JOIN (SELECT * FROM BOOK LEFT JOIN BOOK_INFO USING(ISBN_NO)) USING(BOOK_NO) LEFT JOIN MEMBER USING(USER_ID)
+		<choose>
+			<when test="searchOption eq 'lending_date' || searchOption eq 'return_date'">
+				WHERE ${searchOption}=#{searchWord}
+			</when>
+			<otherwise>
+				WHERE ${searchOption} LIKE '%'||#{searchWord}||'%'
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 대출도서 검색 카운트 -->
+	<select id="searchRentalCount" parameterType="Map" resultType="_int">
+		SELECT COUNT(*) FROM
+		LENDING LEFT JOIN (SELECT * FROM BOOK LEFT JOIN BOOK_INFO USING(ISBN_NO)) USING(BOOK_NO) LEFT JOIN MEMBER USING(USER_ID)
+		<choose>
+			<when test="searchOption eq 'lending_date' || searchOption eq 'return_date'">
+				WHERE ${searchOption}=#{searchWord}
+			</when>
+			<otherwise>
+				WHERE ${searchOption} LIKE '%'||#{searchWord}||'%'
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 대출도서내역 검색 리스트 -->
+	<select id="searchRentalHList" parameterType="Map" resultMap="lenHisMap">
+		SELECT * FROM
+		LENDING_HISTORY LEFT JOIN MEMBER USING(USER_ID)
+		<choose>
+			<when test="searchOption2 eq 'lending_date' || searchOption2 eq 'return_date'">
+				WHERE ${searchOption2}=#{searchWord2}
+			</when>
+			<otherwise>
+				WHERE ${searchOption2} LIKE '%'||#{searchWord2}||'%'
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 대출도서내역 검색 카운트 -->
+	<select id="searchRentalHCount" parameterType="Map" resultType="_int">
+		SELECT COUNT(*) FROM
+		LENDING_HISTORY LEFT JOIN MEMBER USING(USER_ID)
+		<choose>
+			<when test="searchOption2 eq 'lending_date' || searchOption2 eq 'return_date'">
+				WHERE ${searchOption2}=#{searchWord2}
+			</when>
+			<otherwise>
+				WHERE ${searchOption2} LIKE '%'||#{searchWord2}||'%'
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 대출도서 연장 -->
+	<update id="addBookExtend" parameterType="Map">
+		UPDATE LENDING SET BOOK_EXTEND=#{bookExtend}, RETURN_DATE=#{returnDate} WHERE USER_ID=#{userId} AND LENDING_NO=#{lendingNo}
+	</update>
+	
+	<!-- 대출도서 내역선택 -->
+	<select id="selectLending" resultMap="lending">
+		SELECT * FROM LENDING WHERE USER_ID=#{userId} AND LENDING_NO=#{lendingNo}
+	</select>
+	
+	<!-- 대출내역 삽입 -->
+	<insert id="insertLendingHistory">
+		INSERT INTO LENDING_HISTORY VALUES(SEQ_LENDING_HISTORY.NEXTVAL,#{lendingNo},#{userId},#{bookNo},#{lendingDate},#{returnDate},#{bookExtend})
+	</insert>
+	
+	<!-- 대출도서 반납 -->
+	<delete id="returnBook">
+		DELETE FROM LENDING WHERE USER_ID=#{userId} AND LENDING_NO=#{lendingNo}
+	</delete>
+	
+	<!-- 대출도서 체크 리스트 -->
+	<select id="selectDRTCList" resultMap="lending">
+		SELECT * FROM LENDING WHERE LENDING_NO IN
+		<foreach collection="lendingNo" item="b" open="(" separator="," close=")">
+			#{b}
+		</foreach>
+	</select>
+	
+	<!-- 대출도서 체크 삭제 -->
+	<delete id="deleteRentalCheck" parameterType="Map">
+		DELETE FROM LENDING WHERE LENDING_NO IN 
+		<foreach collection="lendingNo" item="b" open="(" separator="," close=")">
+			#{b}
+		</foreach>
+		   
+	</delete>
+	
+	<!-- 대출도서 체크 내역삽입 -->
+	<insert id="insertDRTCList" parameterType="java.util.List">
+		INSERT INTO LENDING_HISTORY(LENDING_HISTORY_NO,LENDING_NO,USER_ID,BOOK_NO,LENDING_DATE,RETURN_DATE,BOOK_EXTEND) 
+		SELECT SEQ_LENDING_HISTORY.NEXTVAL, A.* FROM(
+		<foreach collection="list" item="l" separator="UNION ALL">
+		SELECT #{l.lendingNo} AS LENDING_NO,#{l.userId} AS USER_ID,#{l.bookNo} AS BOOK_NO,#{l.lendingDate} AS LENDING_DATE,#{l.returnDate} AS RETURN_DATE,#{l.bookExtend} AS BOOK_EXTEND FROM DUAL
+		</foreach>) A
+	</insert>
+	
+	<!-- 예약도서 리스트 -->
+	<select id="reservedList" resultMap="booking">
+		SELECT * FROM
+		BOOKING LEFT JOIN MEMBER USING(USER_ID) LEFT JOIN (SELECT * FROM BOOK LEFT JOIN BOOK_INFO USING(ISBN_NO)) USING(BOOK_NO)
+	</select>
+	
+	<!-- 예약도서내역 리스트 -->
+	<select id="reservedHistoryList" resultMap="bookingHistory">
+		SELECT * FROM
+		BOOKING_HISTORY LEFT JOIN MEMBER USING(USER_ID)
+	</select>
+
+	<!-- 예약도서 카운트 -->
+	<select id="reservedHCount" resultType="_int">
+		SELECT COUNT(*) FROM
+		BOOKING_HISTORY LEFT JOIN MEMBER USING(USER_ID)
+	</select>	
+	
+	<!-- 예약도서 검색 리스트 -->
+	<select id="searchReservedList" parameterType="Map" resultMap="booking">
+		SELECT * FROM
+		BOOKING LEFT JOIN MEMBER USING(USER_ID) LEFT JOIN (SELECT * FROM BOOK LEFT JOIN BOOK_INFO USING(ISBN_NO)) USING(BOOK_NO)
+		WHERE ${searchOption} LIKE '%'||#{searchWord}||'%'
+	</select>
+	
+	<!-- 예약도서내역 검색 리스트 -->
+	<select id="searchReservedHistoryList" parameterType="Map" resultMap="bookingHistory">
+		SELECT * FROM
+		BOOKING_HISTORY LEFT JOIN MEMBER USING(USER_ID)
+		WHERE ${searchOptionH} LIKE '%'||#{searchWordH}||'%'
+	</select>
+	
+	<!-- 예약도서 검색 카운트 -->
+	<select id="searchReservedHistoryCount" parameterType="Map" resultType="_int">
+		SELECT COUNT(*) FROM
+		BOOKING_HISTORY LEFT JOIN MEMBER USING(USER_ID)
+		WHERE ${searchOptionH} LIKE '%'||#{searchWordH}||'%'
+	</select>
+	
+	<!-- 예약도서 선택 -->
+	<select id="selectBooking" resultMap="booking">
+		SELECT * FROM BOOKING WHERE BOOKING_NO=#{bookingNo} AND USER_ID=#{userId}
+	</select>
+	
+	<!-- 예약도서내역 삽입 -->
+	<insert id="insertBookingHistory">
+		INSERT INTO BOOKING_HISTORY VALUES(SEQ_BOOKING_HISTORY_NO.NEXTVAL,#{bookingNo},#{userId},#{bookNo},#{bookingDate},#{bookingPickUpDate})
+	</insert>
+	
+	<!-- 예약도서 삭제 -->
+	<delete id="cancelReserved">
+		DELETE FROM BOOKING WHERE USER_ID=#{userId} AND BOOKING_NO=#{bookingNo}
+	</delete>
+	
+	<!-- 예약도서 체크 리스트 -->
+	<select id="selectDRCList" resultMap="booking">
+		SELECT * FROM BOOKING WHERE BOOKING_NO IN
+		<foreach collection="bookingNo" item="b" open="(" separator="," close=")">
+			#{b}
+		</foreach>
+	</select>
+	
+	<!-- 예약도서 체크 삭제 -->
+	<delete id="deleteReservedCheck" parameterType="Map">
+		DELETE FROM BOOKING WHERE BOOKING_NO IN 
+		<foreach collection="bookingNo" item="b" open="(" separator="," close=")">
+			#{b}
+		</foreach>
+		   
+	</delete>
+	
+	<!-- 예약도서 체크 내역삽입 -->
+	<insert id="insertDRCList" parameterType="java.util.List">
+		INSERT INTO BOOKING_HISTORY(BOOKING_HISTORY_NO,BOOKING_NO,USER_ID,BOOK_NO,BOOKING_DATE,BOOKING_PICKUP_DATE) 
+		SELECT SEQ_BOOKING_HISTORY_NO.NEXTVAL, A.* FROM(
+		<foreach collection="list" item="l" separator="UNION ALL">
+		SELECT #{l.bookingNo} AS BOOKING_NO,#{l.userId} AS USER_ID,#{l.bookNo} AS BOOK_NO,#{l.bookingDate} AS BOOKING_DATE,#{l.bookingPickUpDate} AS BOOKING_PICKUP_DATE FROM DUAL
+		</foreach>) A
+	</insert>
+	
+		<!-- 카테고리별 도서수 -->
+	<select id="countCatBook" resultType="Map">
+		SELECT COUNT(*) AS BOOKS FROM BOOK_INFO JOIN KDC_DETAIL ON(BOOK_KDC=KDC_DETAIL_NO) JOIN KDC_NO USING(KDC_NO)
+		GROUP BY KDC_NO.KDC_NAME 
+	</select>
+	
+	<!-- 관심도서 랭킹 -->
+	<select id="countLikBook" resultType="Map">
+		SELECT LIKE_COUNT,BOOK_NAME
+		FROM 
+			(SELECT COUNT(*) AS LIKE_COUNT,BOOK_INFO.BOOK_NAME
+			FROM LIKES JOIN BOOK_INFO USING(ISBN_NO)
+			GROUP BY BOOK_INFO.BOOK_NAME
+			ORDER BY LIKE_COUNT DESC) 
+		WHERE ROWNUM BETWEEN 1 AND 5
+	</select>
+	
+	<!-- 도서 대출목록 -->
+	<select id="countRenBook" parameterType="Map" resultType="Map">
+		SELECT LENDING_DATE,COUNT(*) AS LENDING_COUNT FROM LENDING_HISTORY
+		WHERE LENDING_DATE BETWEEN #{rowDate} AND #{highDate}
+		GROUP BY LENDING_DATE
+		ORDER BY LENDING_DATE
+	</select>
+	
+	<!-- resultMap -->
+	
+	<!-- book -->
+	<resultMap type="book" id="bookMap">
+		<id column="book_no" property="bookNo"/>
+		<result column="isbn_no" property="isbnNo"/> 
+		<result column="booking_state" property="bookingState"/>
+		<result column="lending_state" property="lendingState"/>
+		<collection property="bookInfo" ofType="bookInfo">
+			<id column="isbn_no" property="isbnNo"/>
+			<result column="book_name" property="bookName"/>
+			<result column="book_writer" property="bookWriter"/>
+			<result column="book_company" property="bookCompany"/>
+			<result column="book_date" property="bookDate"/>
+			<result column="book_price" property="bookPrice"/>
+			<result column="book_location" property="bookLocation"/>
+			<result column="book_content" property="bookContent"/>
+			<result column="book_img" property="bookImg"/>
+			<result column="book_kdc" property="bookKdc"/>
+ 			<collection property="kdcDetail" ofType="kdcDetail">
+				<id column="kdc_detail_no" property="kdcDetailNo"/>
+				<result column="kdc_detail_name" property="kdcDetailName"/>
+				<result column="kdc_no" property="kdcNo"/>
+				<collection property="kdcType" ofType="kdcType">
+					<id column="kdc_no" property="kdcNo"/>
+					<result column="kdc_name" property="kdcName"/>
+				</collection>
+			</collection>
+		</collection>
+	</resultMap>
+			
+	<!-- Lending -->		
+	<resultMap type="com.kh.klibrary.member.model.vo.Lending" id="lending">
+		<id column="LENDING_NO" property="lendingNo"/>
+		<result column="USER_ID" property="userId"/>
+		<result column="BOOK_NO" property="bookNo"/>
+		<result column="LENDING_DATE" property="lendingDate"/>
+		<result column="RETURN_DATE" property="returnDate"/>
+		<result column="BOOK_EXTEND" property="bookExtend"/>
+		<collection property="member" ofType="member">
+			<id column="USER_ID" property="userId"/>
+			<result column="USER_PASSWORD" property="userPassword"/>
+			<result column="USER_NAME" property="userName"/>
+			<result column="EMAIL" property="email"/>
+			<result column="BIRTH_DATE" property="birthDate"/>
+			<result column="ADDRESS" property="address"/>
+			<result column="PHONE" property="phone"/>
+			<result column="SIGNUP_DATE" property="signupDate"/>
+		</collection>
+		<collection property="book" ofType="book">
+			<id column="BOOK_NO" property="bookNo"/>
+			<result column="ISBN_NO" property="bookingState"/>
+			<result column="BOOKING_STATE" property="bookingState"/>
+			<result column="LENDING_STATE" property="lendingState"/>
+			<collection property="bookInfo" ofType="bookInfo">
+				<id column="ISBN_NO" property="isbnNo"/>
+				<result column="BOOK_NAME" property="bookName"/>
+				<result column="BOOK_WRITER" property="bookWriter"/>
+				<result column="BOOK_COMPANY" property="bookCompany"/>
+				<result column="BOOK_DATE" property="bookDate"/>
+				<result column="BOOK_PRICE" property="bookPrice"/>
+				<result column="BOOK_LOCATION" property="bookLocation"/>
+				<result column="BOOK_CONTENT" property="bookContent"/>
+				<result column="BOOK_IMG" property="bookImg"/>
+				<result column="BOOK_KDC" property="bookKdc"/>
+			</collection>
+		</collection>
+	</resultMap>
+	
+	<!-- Lending History -->
+	<resultMap id="lenHisMap" type="com.kh.klibrary.member.model.vo.LendingHistory">
+		<id column="lending_history_no" property="lendingHistoryNo"/>
+		<result column="lending_no" property="lendingNo"/>
+		<result column="lending_date" property="lendingDate"/>
+		<result column="return_date" property="returnDate"/>
+		<result column="book_extend" property="bookExtend"/>
+		<result column="book_no" property="bookNo"/>
+		<result column="user_id" property="userId"/>
+		<collection property="member" ofType="member">
+			<id column="USER_ID" property="userId"/>
+			<result column="USER_PASSWORD" property="userPassword"/>
+			<result column="USER_NAME" property="userName"/>
+			<result column="EMAIL" property="email"/>
+			<result column="BIRTH_DATE" property="birthDate"/>
+			<result column="ADDRESS" property="address"/>
+			<result column="PHONE" property="phone"/>
+			<result column="SIGNUP_DATE" property="signupDate"/>
+		</collection>
+	</resultMap>
+	
+	<!-- Booking -->
+	<resultMap type="com.kh.klibrary.member.model.vo.Booking" id="booking">
+		<id column="BOOKING_NO" property="bookingNo"/>
+		<result column="USER_ID" property="userId"/>
+		<result column="BOOK_NO" property="bookNo"/>
+		<result column="BOOKING_DATE" property="bookingDate"/>
+		<result column="BOOKING_PICKUP_DATE" property="bookingPickUpDate"/>
+		<collection property="member" ofType="member">
+			<id column="USER_ID" property="userId"/>
+			<result column="USER_PASSWORD" property="userPassword"/>
+			<result column="USER_NAME" property="userName"/>
+			<result column="EMAIL" property="email"/>
+			<result column="BIRTH_DATE" property="birthDate"/>
+			<result column="ADDRESS" property="address"/>
+			<result column="PHONE" property="phone"/>
+			<result column="SIGNUP_DATE" property="signupDate"/>
+		</collection>
+		<collection property="book" ofType="book">
+			<id column="BOOK_NO" property="bookNo"/>
+			<result column="ISBN_NO" property="bookingState"/>
+			<result column="BOOKING_STATE" property="bookingState"/>
+			<result column="LENDING_STATE" property="lendingState"/>
+			<collection property="bookInfo" ofType="bookInfo">
+				<id column="ISBN_NO" property="isbnNo"/>
+				<result column="BOOK_NAME" property="bookName"/>
+				<result column="BOOK_WRITER" property="bookWriter"/>
+				<result column="BOOK_COMPANY" property="bookCompany"/>
+				<result column="BOOK_DATE" property="bookDate"/>
+				<result column="BOOK_PRICE" property="bookPrice"/>
+				<result column="BOOK_LOCATION" property="bookLocation"/>
+				<result column="BOOK_CONTENT" property="bookContent"/>
+				<result column="BOOK_IMG" property="bookImg"/>
+				<result column="BOOK_KDC" property="bookKdc"/>
+			</collection>
+		</collection>
+	</resultMap>
+	<!-- BOOKING HISTORY -->
+	<resultMap type="com.kh.klibrary.member.model.vo.BookingHistory" id="bookingHistory">
+		<id column="BOOKING_HISTORY_NO" property="bookingHistoryNo"/>
+		<result column="USER_ID" property="userId"/>
+		<result column="BOOKING_NO" property="bookingNo"/>
+		<result column="BOOK_NO" property="bookNo"/>
+		<result column="BOOKING_DATE" property="bookingDate"/>
+		<result column="BOOKING_PICKUP_DATE" property="bookingPickUpDate"/>
+		<collection property="member" ofType="member">
+			<id column="USER_ID" property="userId"/>
+			<result column="USER_PASSWORD" property="userPassword"/>
+			<result column="USER_NAME" property="userName"/>
+			<result column="EMAIL" property="email"/>
+			<result column="BIRTH_DATE" property="birthDate"/>
+			<result column="ADDRESS" property="address"/>
+			<result column="PHONE" property="phone"/>
+			<result column="SIGNUP_DATE" property="signupDate"/>
+		</collection>
+	</resultMap>
+	
+	
+	
+	
+	
+	<!--  희망도서  -->
+	
+		<resultMap type="com.kh.klibrary.book.model.vo.WishBook" id="bookWishList">
+		<id column="WISH_BOOK_NO" property="wishBookNo"></id>
+		<result column="USER_ID" property="userId"/>
+		<result column="ISBN_NO" property="isbnNo"/>
+		<result column="BOOK_NAME" property="bookName"/>
+		<result column="BOOK_WRITER" property="bookWriter"/>
+		<result column="BOOK_COMPANY" property="bookCompany"/>
+		<result column="BOOK_DATE" property="bookCompany"/>
+		<result column="BOOK_PRICE" property="bookPrice"/>
+		</resultMap>
+	
+		<!-- 희망도서 리스트 -->
+	<select id="selectBookWishList" resultMap="bookWishList">
+		SELECT * FROM WISHBOOK	
+	</select>
+	
+	  <select id="selectWishBookCount" resultType="_int">
+  	SELECT COUNT(*) FROM WISHBOOK
+  </select>
+	
+	  <delete id="deleteWishBook" parameterType="String">
+  	DELETE FROM WISHBOOK WHERE WISH_BOOK_NO = #{wishBookNo}
+  	</delete>
+  	
+  	<!--  희망도서 검색 -->
+		<select id="searchWishBook" parameterType="Map" resultMap="bookWishList">
+		SELECT * FROM
+		WISHBOOK LEFT JOIN MEMBER USING(USER_ID) LEFT JOIN (SELECT * FROM BOOK LEFT JOIN BOOK_INFO USING(ISBN_NO)) USING(BOOK_NO)
+		WHERE ${searchOption} LIKE '%'||#{searchWord}||'%'
+	</select>
+	
+	<!--  구매한 희망도서 도서에 등록하기 -->
+	
+	<insert id="insertWishBookToBook" parameterType="Map">
+		INSERT INTO BOOK
+		VALUES(SEQ_BOOK_NO.NEXTVAL,#{isbnNo},default,default)
+	</insert>
+	
+	<insert id="insertWishBookToBookInfo" parameterType="Map">
+		INSERT INTO BOOK_INFO
+		VALUES(#{isbnNo},#{bookName},#{writer},#{company},#{date},#{price},#{location},#{content},#{img},#{kdc})
+	</insert>
+	
+	
+</mapper>

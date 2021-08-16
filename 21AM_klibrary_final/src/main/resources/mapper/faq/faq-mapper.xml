@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="faq">
+	
+	<resultMap type="faq" id="faqMap">
+		<id column="faq_no" property="faqNo"/>
+		<result column="faq_cate" property="faqCate"/>
+		<result column="faq_content" property="faqContent"/>
+		<result column="faq_answer" property="faqAnswer"/>	
+	</resultMap>
+	<!-- FAQ 전체 불러오기  -->
+	<select id="selectFaqList" resultType="map">
+		SELECT * FROM FAQ
+	</select> 
+	
+	<!-- FAQ 제목 검색-->
+	<select id="searchFaqTitle" resultMap="faqMap">
+		SELECT * FROM FAQ WHERE FAQ_CATE LIKE '%'||#{keyWord}||'%'
+	</select>
+	
+	<!-- FAQ 내용 검색  -->
+	<select id="searchFaqContent" resultMap="faqMap">
+		SELECT * FROM FAQ WHERE FAQ_CONTENT LIKE '%'||#{keyWord}||'%'	
+	</select>
+
+	
+</mapper>

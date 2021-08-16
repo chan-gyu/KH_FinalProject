@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="member">
+	
+	<insert id="insertMember">
+		INSERT INTO MEMBER VALUES(#{userId},#{userPassword},#{userName},#{email},#{birthDate},#{address},#{phone},default)
+	</insert>
+	
+	<select id="enrollIdCheck" resultType="int">
+		SELECT COUNT(*) FROM MEMBER WHERE USER_ID=#{userId}
+	</select>
+	
+	<select id="selectMember1" resultMap="Member">
+		SELECT * FROM MEMBER WHERE USER_ID=#{userId}
+	</select>
+	
+	<select id="idCheck" resultMap="Member">
+		SELECT USER_ID FROM MEMBER WHERE USER_ID=#{userId}
+	</select>
+	
+	<select id="findId" resultMap="Member">
+		SELECT * FROM MEMBER WHERE USER_NAME=#{userName} AND EMAIL=#{email}
+	</select>
+	
+	<update id="findPw">
+		UPDATE MEMBER SET USER_PASSWORD=#{userPassword} WHERE USER_ID=#{userId} AND USER_NAME=#{userName} AND EMAIL=#{email}
+	</update>
+	
+	<select id="selectMember" resultMap="Member">
+		SELECT * FROM MEMBER WHERE USER_ID=#{userId} AND USER_PASSWORD=#{userPassword}
+	</select>
+	
+	<update id="updateMember">
+		UPDATE MEMBER SET USER_PASSWORD=#{userPassword},
+						  PHONE=#{phone},
+						  BIRTH_DATE=#{birthDate},
+						  ADDRESS=#{address},
+						  EMAIL=#{email}
+		WHERE USER_ID=#{userId}
+	</update>
+	
+	<resultMap type="com.kh.klibrary.member.model.vo.Member" id="Member">
+		<result column="USER_ID" property="userId"/>
+		<result column="USER_PASSWORD" property="userPassword"/>
+		<result column="USER_NAME" property="userName"/>
+		<result column="EMAIL" property="email"/>
+		<result column="BIRTH_DATE" property="birthDate"/>
+		<result column="ADDRESS" property="address"/>
+		<result column="PHONE" property="phone"/>
+		<result column="SIGNUP_DATE" property="signupDate"/>
+	</resultMap>
+	
+	<select id="selectLHList" resultMap="LH">
+		SELECT * FROM LENDING_HISTORY WHERE USER_ID=#{userId} ORDER BY LENDING_HISTORY_NO DESC
+	</select>
+	<select id="selectLHCount" resultType="_int">
+		SELECT COUNT(*) FROM LENDING_HISTORY WHERE USER_ID=#{userId}
+	</select>
+	
+	<select id="selectDate" resultMap="LH">
+		SELECT * FROM LENDING_HISTORY WHERE USER_ID=#{userId} AND <![CDATA[LENDING_DATE >= #{Date1} AND RETURN_DATE <= #{Date2}]]>
+	</select>
+	<select id="selectDateCount" resultType="_int">
+		SELECT COUNT(*) FROM LENDING_HISTORY WHERE USER_ID=#{userId} AND <![CDATA[LENDING_DATE >= #{Date1} AND RETURN_DATE <= #{Date2}]]>
+	</select>
+	
+	<resultMap type="com.kh.klibrary.member.model.vo.LendingHistory" id="LH">
+		<result column="LENDING_HISTORY_NO" property="lendingHistoryNo"/>
+		<result column="LENDING_NO" property="lendingNo"/>
+		<result column="USER_ID" property="userId"/>
+		<result column="BOOK_NO" property="bookNo"/>
+		<result column="LENDING_DATE" property="lendingDate"/>
+		<result column="RETURN_DATE" property="returnDate"/>
+		<result column="BOOK_EXTEND" property="bookExtend"/>
+	</resultMap>
+	
+	<select id="selectLendingList" resultMap="lending">
+		SELECT * FROM
+		LENDING LEFT JOIN (SELECT * FROM BOOK LEFT JOIN BOOK_INFO USING(ISBN_NO)) USING(BOOK_NO)
+		WHERE USER_ID=#{userId}
+	</select>
+	
+	<select id="selectLendingCount" resultType="_int">
+		SELECT COUNT(*) FROM
+		LENDING LEFT JOIN (SELECT * FROM BOOK LEFT JOIN BOOK_INFO USING(ISBN_NO)) USING(BOOK_NO)
+		WHERE USER_ID=#{userId}
+	</select>
+	
+	<resultMap type="com.kh.klibrary.member.model.vo.Lending" id="lending">
+		<id column="LENDING_NO" property="lendingNo"/>
+		<result column="USER_ID" property="userId"/>
+		<result column="BOOK_NO" property="bookNo"/>
+		<result column="LENDING_DATE" property="lendingDate"/>
+		<result column="RETURN_DATE" property="returnDate"/>
+		<result column="BOOK_EXTEND" property="bookExtend"/>
+		<collection property="member" ofType="member">
+			<id column="USER_ID" property="userId"/>
+			<result column="USER_PASSWORD" property="userPassword"/>
+			<result column="USER_NAME" property="userName"/>
+			<result column="EMAIL" property="email"/>
+			<result column="BIRTH_DATE" property="birthDate"/>
+			<result column="ADDRESS" property="address"/>
+			<result column="PHONE" property="phone"/>
+			<result column="SIGNUP_DATE" property="signupDate"/>
+		</collection>
+		<collection property="book" ofType="book">
+			<id column="BOOK_NO" property="bookNo"/>
+			<result column="ISBN_NO" property="bookingState"/>
+			<result column="BOOKING_STATE" property="bookingState"/>
+			<result column="LENDING_STATE" property="lendingState"/>
+			<collection property="bookInfo" ofType="bookInfo">
+				<id column="ISBN_NO" property="isbnNo"/>
+				<result column="BOOK_NAME" property="bookName"/>
+				<result column="BOOK_WRITER" property="bookWriter"/>
+				<result column="BOOK_COMPANY" property="bookCompany"/>
+				<result column="BOOK_DATE" property="bookDate"/>
+				<result column="BOOK_PRICE" property="bookPrice"/>
+				<result column="BOOK_LOCATION" property="bookLocation"/>
+				<result column="BOOK_CONTENT" property="bookContent"/>
+				<result column="BOOK_IMG" property="bookImg"/>
+				<result column="BOOK_KDC" property="bookKdc"/>
+			</collection>
+		</collection>
+	</resultMap>
+	
+	<select id="selectBookingList" resultMap="booking">
+		SELECT * FROM
+		BOOKING LEFT JOIN (SELECT * FROM BOOK LEFT JOIN BOOK_INFO USING(ISBN_NO)) USING(BOOK_NO)
+		WHERE USER_ID=#{userId}
+	</select>
+	
+	<select id="selectBookingCount" resultType="_int">
+		SELECT COUNT(*) FROM
+		BOOKING LEFT JOIN (SELECT * FROM BOOK LEFT JOIN BOOK_INFO USING(ISBN_NO)) USING(BOOK_NO)
+		WHERE USER_ID=#{userId}
+	</select>
+	
+	<delete id="cancelBooking">
+		DELETE FROM BOOKING WHERE USER_ID=#{userId} AND BOOK_NO=#{bookNo}
+	</delete>
+	
+	<update id="cancelBookingUpdate">
+		UPDATE BOOK 
+		SET BOOKING_STATE='가능', LENDING_STATE='가능'
+		WHERE BOOK_NO=#{bookNo}
+	</update>
+	
+	<resultMap type="com.kh.klibrary.member.model.vo.Booking" id="booking">
+		<id column="BOOKING_NO" property="bookingNo"/>
+		<result column="USER_ID" property="userId"/>
+		<result column="BOOK_NO" property="bookNo"/>
+		<result column="BOOKING_DATE" property="bookingDate"/>
+		<result column="BOOKING_PICKUP_DATE" property="bookingPickUpDate"/>
+		<collection property="member" ofType="member">
+			<id column="USER_ID" property="userId"/>
+			<result column="USER_PASSWORD" property="userPassword"/>
+			<result column="USER_NAME" property="userName"/>
+			<result column="EMAIL" property="email"/>
+			<result column="BIRTH_DATE" property="birthDate"/>
+			<result column="ADDRESS" property="address"/>
+			<result column="PHONE" property="phone"/>
+			<result column="SIGNUP_DATE" property="signupDate"/>
+		</collection>
+		<collection property="book" ofType="book">
+			<id column="BOOK_NO" property="bookNo"/>
+			<result column="ISBN_NO" property="bookingState"/>
+			<result column="BOOKING_STATE" property="bookingState"/>
+			<result column="LENDING_STATE" property="lendingState"/>
+			<collection property="bookInfo" ofType="bookInfo">
+				<id column="ISBN_NO" property="isbnNo"/>
+				<result column="BOOK_NAME" property="bookName"/>
+				<result column="BOOK_WRITER" property="bookWriter"/>
+				<result column="BOOK_COMPANY" property="bookCompany"/>
+				<result column="BOOK_DATE" property="bookDate"/>
+				<result column="BOOK_PRICE" property="bookPrice"/>
+				<result column="BOOK_LOCATION" property="bookLocation"/>
+				<result column="BOOK_CONTENT" property="bookContent"/>
+				<result column="BOOK_IMG" property="bookImg"/>
+				<result column="BOOK_KDC" property="bookKdc"/>
+			</collection>
+		</collection>
+	</resultMap>
+	
+	<select id="selectBookMarkList" resultMap="likes">
+		SELECT * FROM LIKES LEFT JOIN MEMBER USING(USER_ID) LEFT JOIN BOOK_INFO USING(ISBN_NO)
+		WHERE USER_ID=#{userId}
+	</select>
+	<select id="selectBookMarkCount" resultType="_int">
+		SELECT COUNT(*) FROM LIKES LEFT JOIN MEMBER USING(USER_ID) LEFT JOIN BOOK_INFO USING(ISBN_NO)
+		WHERE USER_ID=#{userId}
+	</select>
+	<delete id="cancelMark">
+		DELETE FROM LIKES WHERE USER_ID=#{userId} AND ISBN_NO=#{isbnNo}
+	</delete>
+	<resultMap type="com.kh.klibrary.member.model.vo.Likes" id="likes">
+		<result column="USER_ID" property="userId"/>
+		<result column="ISBN_NO" property="isbnNo"/>
+		<collection property="member" ofType="member">
+			<id column="USER_ID" property="userId"/>
+			<result column="USER_PASSWORD" property="userPassword"/>
+			<result column="USER_NAME" property="userName"/>
+			<result column="EMAIL" property="email"/>
+			<result column="BIRTH_DATE" property="birthDate"/>
+			<result column="ADDRESS" property="address"/>
+			<result column="PHONE" property="phone"/>
+			<result column="SIGNUP_DATE" property="signupDate"/>
+		</collection>
+		<collection property="bookInfo" ofType="bookInfo">
+			<id column="ISBN_NO" property="isbnNo"/>
+			<result column="BOOK_NAME" property="bookName"/>
+			<result column="BOOK_WRITER" property="bookWriter"/>
+			<result column="BOOK_COMPANY" property="bookCompany"/>
+			<result column="BOOK_DATE" property="bookDate"/>
+			<result column="BOOK_PRICE" property="bookPrice"/>
+			<result column="BOOK_LOCATION" property="bookLocation"/>
+			<result column="BOOK_CONTENT" property="bookContent"/>
+			<result column="BOOK_IMG" property="bookImg"/>
+			<result column="BOOK_KDC" property="bookKdc"/>
+		</collection>
+	</resultMap>
+	
+	<select id="selectHopeRecordList" resultMap="wishBook">
+		SELECT * FROM WISHBOOK WHERE USER_ID=#{userId} ORDER BY WISH_BOOK_NO DESC
+	</select>
+	
+	<select id="selectHopeRecordCount" resultType="_int">
+		SELECT COUNT(*) FROM WISHBOOK WHERE USER_ID=#{userId}
+	</select>
+	
+	<resultMap type="com.kh.klibrary.book.model.vo.WishBook" id="wishBook">
+		<id column="WISH_BOOK_NO" property="wishBookNo"/>
+		<result column="USER_ID" property="userId"/>
+		<result column="ISBN_NO" property="isbnNo"/>
+		<result column="BOOK_NAME" property="bookName"/>
+		<result column="BOOK_WRITER" property="bookWriter"/>
+		<result column="BOOK_COMPANY" property="bookCompany"/>
+		<result column="BOOK_DATE" property="bookDate"/>
+		<result column="BOOK_PRICE" property="bookPrice"/>
+	</resultMap>
+	
+	<select id="selectMemberDropRequestList" resultMap="memberDrop">
+		SELECT * FROM MEMBERDROP WHERE USER_ID=#{userId}
+	</select>
+	
+	<insert id="insertMemberDropRequest">
+		INSERT INTO MEMBERDROP VALUES(#{userId},#{request})
+	</insert>
+	
+	<resultMap type="com.kh.klibrary.member.model.vo.MemberDrop" id="memberDrop">
+		<result column="USER_ID" property="userId"/>
+		<result column="DROP_REQUEST" property="dropRequest"/>
+<!-- 		<collection property="member" ofType="member">
+			<id column="USER_ID" property="userId"/>
+			<result column="USER_PASSWORD" property="userPassword"/>
+			<result column="USER_NAME" property="userName"/>
+			<result column="EMAIL" property="email"/>
+			<result column="BIRTH_DATE" property="birthDate"/>
+			<result column="ADDRESS" property="address"/>
+			<result column="PHONE" property="phone"/>
+			<result column="SIGNUP_DATE" property="signupDate"/>
+		</collection> -->
+	</resultMap>
+	
+	
+	<!-- 홈페이지 방문자수 count -->
+	<insert id="countUser" parameterType="String">
+		INSERT INTO VISITOR VALUES(SEQ_VIS_NO.NEXTVAL,#{today})
+	</insert>
+	
+	<select id="selectSRBooking" parameterType="String" resultMap="srbooking">	
+		SELECT * FROM STUDYROOM_BOOKING WHERE USER_ID=#{userId} AND BOOKING_NO=(SELECT MAX(BOOKING_NO) FROM STUDYROOM_BOOKING WHERE USER_ID=#{userId})
+	</select>
+	
+	<delete id="cancelSRBooking" parameterType="String">
+		DELETE FROM STUDYROOM_BOOKING WHERE BOOKING_NO=#{bookingNo}
+	</delete>
+	
+	<resultMap type="com.kh.klibrary.admin.studyroom.model.vo.AdminStudyroomBooking" id="srbooking">
+		<id column="BOOKING_NO" property="bookingNo"/>
+		<result column="STUDYROOM_TYPE" property="roomName"/>
+		<result column="USER_ID" property="userId"/>
+		<result column="SEAT_NO" property="seatNo"/>
+		<result column="START_TIME" property="startTime"/>
+		<result column="END_TIME" property="endTime"/>
+		<result column="USAGE_DATE" property="usageDate"/>
+	</resultMap>
+	
+	<select id="selectSRHList" parameterType="String" resultMap="srHistory">
+		SELECT * FROM STUDYROOM_HISTORY WHERE USER_ID=#{userId}
+	</select>
+	
+	<select id="selectSRHCount" parameterType="String" resultType="_int">
+		SELECT COUNT(*) FROM STUDYROOM_HISTORY WHERE USER_ID=#{userId}
+	</select>
+	
+	<resultMap type="com.kh.klibrary.admin.studyroom.model.vo.AdminStudyroomHistory" id="srHistory">
+		<id column="STUDYROOM_HISTORY_NO" property="studyroomHistoryNo"/>
+		<result column="USER_ID" property="userId"/>
+		<result column="BOOKING_NO" property="bookingNo"/>
+		<result column="STUDYROOM_TYPE" property="studyroomType"/>
+		<result column="SEAT_NO" property="seatNo"/>
+		<result column="START_TIME" property="startTime"/>
+		<result column="END_TIME" property="endTime"/>
+		<result column="USAGE_DATE" property="usageDate"/>
+	</resultMap>
+	
+</mapper>
